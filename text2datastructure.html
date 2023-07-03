@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body {
+        background-color: #292929;
+        color: #ffffff;
+        font-family: monospace;
+    }
+
+    .container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .blue {
+        color: blue;
+    }
+
+    .highlight {
+        background: linear-gradient(to right, rgba(255, 0, 0, 0.4), rgba(255, 127, 0, 0.4), rgba(255, 255, 0, 0.4), rgba(0, 255, 0, 0.4), rgba(0, 0, 255, 0.4), rgba(75, 0, 130, 0.4), rgba(148, 0, 211, 0.4));
+        border-radius: 5px;
+        padding: 2px;
+        display: inline;
+    }
+
+    .repeated {
+        animation: highlight 2s infinite;
+    }
+
+    .long-word {
+        animation: rainbow 3s infinite;
+        background-image: linear-gradient(45deg, #ff1744, #ff1744, #ff8f00, #ffea00, #00c853, #00c853, #1de9b6, #1de9b6, #1e88e5, #1e88e5, #6a1b9a, #6a1b9a);
+        background-size: 800% 800%;
+        display: inline;
+    }
+
+    .start-word {
+        color: #ff5252;
+    }
+
+    .empty-space {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    @keyframes highlight {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <textarea id="input" rows="10" cols="50"></textarea>
+        <button onclick="convertText()">Convert</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        var excludedWords = [
+            "that", "are", "what", "a", "in", "not", "like", "into", "the", "of", "and", "by", "there", "maybe", "she", "so", "to", "it", "how"
+        ];
+
+        function convertText() {
+            var inputText = document.getElementById("input").value;
+            var outputDiv = document.getElementById("output");
+            var formattedText = formatText(inputText);
+            outputDiv.innerHTML = formattedText;
+        }
+
+        function formatText(text) {
+            var sentences = text.split(".");
+            var formattedSentences = [];
+            var indentLevel = 0;
+
+            for (var i = 0; i < sentences.length; i++) {
+                var sentence = sentences[i].trim();
+                if (sentence !== "") {
+                    var words = sentence.split(" ");
+                    var formattedWords = [];
+
+                    for (var j = 0; j < words.length; j++) {
+                        var word = words[j].trim();
+
+                        if (word !== "") {
+                            if (word.endsWith(";;")) {
+                                formattedWords.push('<span class="blue">' + word.slice(0, -2) + '</span><span class="repeated">;;</span>');
+                            } else if (j === 0) {
+                                formattedWords.push('<span class="start-word">' + word + '</span>');
+                            } else {
+                                formattedWords.push(word);
+                            }
+                            if (j !== words.length - 1) {
+                                formattedWords.push('<span class="highlight"> </span>');
+                            }
+                        }
+                    }
+
+                    var className = formattedWords[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                    var indentSpaces = '&nbsp;'.repeat(indentLevel * 4);
+                    var indentTabs = '&emsp;'.repeat(indentLevel * 2);
+                    formattedSentences.push('<div class="highlight">' + indentSpaces + indentTabs + '<span class="empty-space"></span>' + formattedWords[0] + '() {<br>' + indentSpaces + indentTabs + '&emsp;&emsp;&emsp;&emsp;' + '<span class="content">' + formattedWords.slice(1).join(" ") + '</span><br>' + indentSpaces + indentTabs + '}</div>');
+
+                    indentLevel = (indentLevel + 1) % 3;
+                }
+            }
+
+            var formattedText = formattedSentences.join(".<br>");
+            return formattedText;
+        }
+    </script>
+</body>
+</html>
